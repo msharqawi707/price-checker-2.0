@@ -55,7 +55,7 @@ fi
 
 # Kill any existing Chromium processes
 log_message "Cleaning up existing browser processes..."
-pkill -f chromium-browser 2>/dev/null || true
+pkill -f chromium 2>/dev/null || true
 sleep 2
 
 # Remove Chromium crash files and cache
@@ -105,8 +105,23 @@ chown -R dietpi:dietpi /home/dietpi/.config/chromium/
 
 log_message "Starting Chromium in kiosk mode..."
 
+# Detect Chromium command
+CHROMIUM_CMD=""
+if command -v chromium-browser >/dev/null 2>&1; then
+    CHROMIUM_CMD="chromium-browser"
+elif command -v chromium >/dev/null 2>&1; then
+    CHROMIUM_CMD="chromium"
+elif command -v /snap/bin/chromium >/dev/null 2>&1; then
+    CHROMIUM_CMD="/snap/bin/chromium"
+else
+    log_message "Error: No Chromium browser found!"
+    exit 1
+fi
+
+log_message "Using Chromium command: $CHROMIUM_CMD"
+
 # Start Chromium in kiosk mode with comprehensive flags
-chromium-browser \
+$CHROMIUM_CMD \
   --kiosk \
   --no-first-run \
   --disable-infobars \
@@ -156,11 +171,11 @@ while true; do
         sleep 5
         
         # Clean up
-        pkill -f chromium-browser 2>/dev/null || true
+        pkill -f chromium 2>/dev/null || true
         sleep 2
         
         # Restart Chromium
-        chromium-browser \
+        $CHROMIUM_CMD \
           --kiosk \
           --no-first-run \
           --disable-infobars \

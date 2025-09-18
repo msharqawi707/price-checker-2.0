@@ -49,7 +49,30 @@ log_info "Starting Price Checker 2.0 installation..."
 # Step 1: Update system and install packages
 log_info "Installing required packages..."
 apt update
-apt install -y nodejs npm chromium-browser unclutter xorg xinit x11-xserver-utils curl
+
+# Install basic packages
+apt install -y nodejs npm unclutter xorg xinit x11-xserver-utils curl
+
+# Install Chromium (try different package names)
+log_info "Installing Chromium browser..."
+if apt install -y chromium-browser 2>/dev/null; then
+    log_success "Installed chromium-browser"
+elif apt install -y chromium 2>/dev/null; then
+    log_success "Installed chromium"
+elif apt install -y chromium-bsu 2>/dev/null; then
+    log_success "Installed chromium-bsu"
+else
+    log_warning "Could not install Chromium via apt, trying snap..."
+    if command -v snap >/dev/null 2>&1; then
+        snap install chromium
+        log_success "Installed chromium via snap"
+    else
+        log_error "Could not install Chromium. Please install manually:"
+        log_info "Try: sudo apt install chromium"
+        log_info "Or: sudo snap install chromium"
+        exit 1
+    fi
+fi
 
 # Step 2: Create project directory and copy files
 log_info "Setting up project files..."
