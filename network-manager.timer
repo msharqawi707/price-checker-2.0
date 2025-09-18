@@ -1,0 +1,11 @@
+[Unit]
+Description=Run Network Manager every 30 minutes
+Requires=network-manager.service
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=30min
+Persistent=true
+
+[Install]
+WantedBy=timers.target
