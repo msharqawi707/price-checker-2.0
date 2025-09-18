@@ -142,6 +142,9 @@ $CHROMIUM_CMD \
   --disable-prompt-on-repost \
   --no-default-browser-check \
   --no-first-run \
+  --disable-default-browser-check \
+  --no-default-browser-check \
+  --disable-background-networking \
   --fast \
   --fast-start \
   --disable-dev-shm-usage \
@@ -158,7 +161,9 @@ $CHROMIUM_CMD \
   --start-maximized \
   --window-position=0,0 \
   --user-data-dir=/home/dietpi/.config/chromium \
+  --homepage=http://localhost:8000/ \
   --app=http://localhost:8000/ \
+  http://localhost:8000/ \
   >> "$LOG_FILE" 2>&1 &
 
 CHROMIUM_PID=$!
@@ -212,7 +217,9 @@ while true; do
           --start-maximized \
           --window-position=0,0 \
           --user-data-dir=/home/dietpi/.config/chromium \
+          --homepage=http://localhost:8000/ \
           --app=http://localhost:8000/ \
+          http://localhost:8000/ \
           >> "$LOG_FILE" 2>&1 &
         
         CHROMIUM_PID=$!

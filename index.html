@@ -1,441 +1,450 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-  <meta charset="UTF-8" />
-  <title>Barcode Scanner</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    body {
-      font-family: sans-serif;
-      text-align: center;
-      margin: 0;
-      padding: 0;
-      background-color: #fcd305;
-    }
-
-    .title {
-      font-family: "CustomSemibold", sans-serif;
-      font-size: 3vw;
-      color: black;
-      display: flex;
-      flex-direction: row;
-      gap: 2vw;
-      align-items: center;
-      justify-content: center;
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 7vh;
-      margin: 0;
-      z-index: 1000;
-    }
-
-    .corner-logo {
-      position: absolute;
-      top: 1vw;
-      left: 1vw;
-      width: 15vw;
-      height: auto;
-    }
-
-    h1 {
-      font-size: 2rem;
-      margin-bottom: 2rem;
-    }
-
-    #result {
-      margin-top: 2rem;
-    }
-
-    .imgcont {
-      background-color: white;
-      border-radius: 20%;
-      width: 33vw;
-      height: 33vw;
-      position: absolute;
-      top: 25vh;
-      left: 10vw;
-      overflow: hidden;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-      justify-items: center;
-      align-content: center;
-      align-items: center;
-    }
-
-    #result img {
-      width: 31vw;
-      height: 31vw;
-      display: block;
-    }
-
-    #barcode-input {
-      position: absolute;
-      left: -1000px;
-    }
-
-    .name {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-    }
-
-    .product-name-ar,
-    .product-name-en {
-      text-align: right;
-      font-size: 2rem;
-      font-family: "CustomSemibold", sans-serif;
-      margin-right: 5vh;
-      max-width: 50vw;
-      overflow-wrap: break-word;
-    }
-
-    .prices {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      margin-right: 5vh;
-    }
-
-    .price-container {
-      display: flex;
-      flex-direction: row-reverse;
-      justify-content: flex-start;
-      gap: 1vw;
-      align-items: center;
-    }
-
-    .product-price {
-      font-size: 5.2rem;
-      font-family: "Custombold", sans-serif;
-      text-align: right;
-      margin: 0;
-    }
-
-    .discount {
-      font-size: 3rem;
-      font-family: "Custombold", sans-serif;
-      text-decoration: line-through;
-      text-align: right;
-      opacity: 0.5;
-      margin: 0;
-    }
-
-    .currency {
-      background-color: white;
-      border-radius: 50%;
-      width: 5vw;
-      height: 5vw;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .bundle-container {
-      background-color: red;
-      border-radius: 2vh;
-      width: 25rem;
-      height: 8rem;
-      position: fixed;
-      right: 2vh;
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-      margin-right: 4vh;
-    }
-
-    .special-offer {
-      font-family: Custombold;
-      color: white;
-      max-width: min-content;
-      background-color: #ac0000;
-      border-radius: 1vh;
-      right: 1vh;
-      text-align: center;
-      height: 17vh;
-      font-size: 2rem;
-      margin-right: 1.5vh;
-      padding: 1vh;
-    }
-
-    .offer-text {
-      font-family: Custombold;
-      font-size: 2.6rem;
-      color: white;
-      line-height: 9vh;
-      text-align: right;
-      margin-right: 5vh;
-    }
-
-    @font-face {
-      font-family: "Custombold";
-      src: url("assets/Fonts/font.otf") format("opentype");
-    }
-
-    @font-face {
-      font-family: "CustomSemibold";
-      src: url("assets/Fonts/semibold.otf") format("opentype");
-    }
-  </style>
-</head>
-
-<body onclick="focusInput()">
-  <img src="assets/corner-logo.png" alt="Logo" class="corner-logo" />
-
-
-
-  <div class="title">
-    <h1 style="font-family: Custombold">Please scan barcode</h1>
-    <h1 style="font-family: Custombold">يرجى مسح الباركود</h1>
-  </div>
-
-
-
-  <input type="text" id="barcode-input" autofocus />
-
-  <div id="result"></div>
-
-  <script>
-    const input = document.getElementById("barcode-input");
-    const resultDiv = document.getElementById("result");
-
-    function focusInput() {
-      input.focus();
-    }
-
-    input.addEventListener("blur", () => setTimeout(focusInput, 100));
-
-    let buffer = "";
-
-    input.addEventListener("keydown", (event) => {
-      if (event.key === "Enter") {
-        const barcode = buffer.trim();
-        buffer = "";
-        input.value = "";
-
-        if (barcode) {
-          console.log("Barcode scanned:", barcode);
-          fetchBarcode(barcode);
-        }
-        event.preventDefault();
-      } else {
-        if (event.key.length === 1) {
-          buffer += event.key;
-        }
+  <head>
+    <meta charset="UTF-8" />
+    <title>Barcode Scanner</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      body {
+        font-family: sans-serif;
+        text-align: center;
+        margin: 0;
+        padding: 0;
+        background-color: #fcd305;
       }
-    });
 
-    let resetTimer = null;
-    let currentBranch = localStorage.getItem('selectedBranch') || '';
+      .title {
+        font-family: "CustomSemibold", sans-serif;
+        font-size: 3vw;
+        color: black;
+        display: flex;
+        flex-direction: row;
+        gap: 2vw;
+        align-items: center;
+        justify-content: center;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 7vh;
+        margin: 0;
+        z-index: 1000;
+      }
 
-    // Check if branch is set on page load
-    if (!currentBranch) {
-      showBranchSelectionMessage();
-    }
+      .corner-logo {
+        position: absolute;
+        top: 1vw;
+        left: 1vw;
+        width: 15vw;
+        height: auto;
+      }
 
-    function showBranchSelectionMessage() {
-      resultDiv.innerHTML = `
-        <div style="text-align:center; color:#ff6600; margin-top:20px; font-size: 28px;">
-          <div style="font-weight:bold;">يرجى اختيار الفرع اولا</div>
-          <div style="font-size: 24px; margin-top: 10px;">Please select branch first</div>
-          <div style="font-size: 18px; margin-top: 15px; color: #666;">Scan branch QR code</div>
-        </div>`;
-    }
+      h1 {
+        font-size: 2rem;
+        margin-bottom: 2rem;
+      }
 
-    
+      #result {
+        margin-top: 2rem;
+      }
 
-    function check_device_settings(barcode){
-      function checkBase64(str) {
-        const base64Pattern = /^[A-Za-z0-9+/]+={0,2}$/;
-        if (!base64Pattern.test(str)) {
-          return { valid: false, decoded: null };
-        }
-        try {
-          const decoded = atob(str);
-          if (/^[\x00-\x7F]*$/.test(decoded)) {
-            return { valid: true, decoded };
-          } else {
-            return { valid: false, decoded: null };
+      .imgcont {
+        background-color: white;
+        border-radius: 20%;
+        width: 33vw;
+        height: 33vw;
+        position: absolute;
+        top: 25vh;
+        left: 10vw;
+        overflow: hidden;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        justify-items: center;
+        align-content: center;
+        align-items: center;
+      }
+
+      #result img {
+        width: 31vw;
+        height: 31vw;
+        display: block;
+      }
+
+      #barcode-input {
+        position: absolute;
+        left: -1000px;
+      }
+
+      .name {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+      }
+
+      .product-name-ar,
+      .product-name-en {
+        text-align: right;
+        font-size: 2rem;
+        font-family: "CustomSemibold", sans-serif;
+        margin-right: 5vh;
+        max-width: 55vw;
+        overflow-wrap: break-word;
+      }
+
+      .prices {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        margin-right: 5vh;
+      }
+
+      .price-container {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: flex-start;
+        gap: 1vw;
+        align-items: center;
+      }
+
+      .product-price {
+        font-size: 5.2rem;
+        font-family: "Custombold", sans-serif;
+        text-align: right;
+        margin: 0;
+      }
+
+      .discount {
+        font-size: 4rem;
+        font-family: "Custombold", sans-serif;
+        text-decoration: line-through;
+        text-align: right;
+        opacity: 0.8;
+        margin: 0;
+      }
+
+      .currency {
+        background-color: white;
+        border-radius: 50%;
+        width: 5vw;
+        height: 5vw;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "sar";
+        font-size: 2.5rem;
+      }
+
+      .bundle-container {
+        background-color: red;
+        border-radius: 2vh;
+        width: 25rem;
+        height: 8rem;
+        position: fixed;
+        right: 2vh;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        margin-right: 4vh;
+      }
+
+      .special-offer {
+        font-family: Custombold;
+        color: white;
+        max-width: min-content;
+        background-color: #ac0000;
+        border-radius: 1vh;
+        right: 1vh;
+        text-align: center;
+        height: 17vh;
+        font-size: 2rem;
+        margin-right: 1.5vh;
+        padding: 1vh;
+      }
+
+      .offer-text {
+        font-family: sar;
+        font-size: 2.6rem;
+        color: white;
+        line-height: 9vh;
+        text-align: right;
+        margin-right: 2vh;
+      }
+
+      .discount-text {
+        font-family: Custombold;
+        font-size: 5.5rem;
+        color: white;
+        line-height: 9vh;
+        text-align: center;
+        margin-right: 2vh;
+      }
+
+      @font-face {
+        font-family: "Custombold";
+        src: url("assets/Fonts/font.otf") format("opentype");
+      }
+
+      @font-face {
+        font-family: "CustomSemibold";
+        src: url("assets/Fonts/semibold.otf") format("opentype");
+      }
+      @font-face {
+        font-family: "sar";
+        src: url("assets/Fonts/Rubik-Regular.otf") format("opentype");
+      }
+    </style>
+  </head>
+
+  <body onclick="focusInput()">
+    <img src="assets/corner-logo.png" alt="Logo" class="corner-logo" />
+
+    <div class="title">
+      <h1 style="font-family: Custombold">Please scan barcode</h1>
+      <h1 style="font-family: Custombold">يرجى مسح الباركود</h1>
+    </div>
+
+    <input type="text" id="barcode-input" autofocus />
+
+    <div id="result"></div>
+
+    <script>
+      const input = document.getElementById("barcode-input");
+      const resultDiv = document.getElementById("result");
+      window.branchCode = localStorage.getItem("branchCode") || "";
+
+      function focusInput() {
+        input.focus();
+      }
+
+      input.addEventListener("blur", () => setTimeout(focusInput, 100));
+
+      let buffer = "";
+
+      input.addEventListener("keydown", (event) => {
+        input.focus();
+        if (event.key === "Enter") {
+          const barcode = buffer.trim();
+          buffer = "";
+          input.value = "";
+
+          if (barcode) {
+            console.log("Barcode scanned:", barcode);
+            fetchBarcode(barcode);
           }
-        } catch (e) {
-          return { valid: false, decoded: null };
+
+          event.preventDefault();
+        } else {
+          if (event.key.length === 1) {
+            buffer += event.key;
+          }
         }
+      });
+
+      let resetTimer = null;
+
+      function formatPriceForDisplay(value) {
+        const numberValue = Number(value);
+        if (!isFinite(numberValue)) return value;
+        return numberValue.toFixed(2);
       }
-      function isJsonDecodable(str) {
+
+      function showTempMessage(msg, duration = 3000) {
+        const msgBox = document.createElement("div");
+        msgBox.style.position = "fixed";
+        msgBox.style.top = "0";
+        msgBox.style.right = "0";
+        msgBox.style.padding = "2rem";
+        msgBox.style.color = "#000";
+        msgBox.style.fontSize = "1.5rem";
+        msgBox.style.zIndex = "9999";
+        msgBox.innerText = msg;
+        document.body.appendChild(msgBox);
+        if (duration > 0) setTimeout(() => msgBox.remove(), duration);
+        return msgBox;
+      }
+
+      async function check_device_settings(barcode) {
+        let json;
         try {
-          const parsed = JSON.parse(str);
-          return { valid: true, value: parsed };
-        } catch (e) {
-          return { valid: false, value: null };
-        }
-      }
-      const {valid, decoded} =checkBase64(barcode);
-      const json_results = isJsonDecodable(decoded);
-      if(valid && decoded && json_results.valid && json_results.value){
-        const json = json_results.value;
-        console.log(json)
-        fetch("http://127.0.0.1:8000/wifi_set", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(json),
-        })
-        .then((response) => response.text())
-        .then((data) => {
-          console.log("Server response:", data);
-        })
-        .catch((error) => {
-          console.error("Error sending POST request:", error);
-        });
-        return;        
-      }
-    }
-    
-    async function fetchBarcode(barcode) {
-      console.log("Sending barcode:", barcode);
-      
-      // Check for device settings (WiFi/Branch QR codes) first
-      check_device_settings(barcode);
-      
-      // If no branch is selected, show branch selection message
-      if (!currentBranch) {
-        showBranchSelectionMessage();
-        return;
-      }
-      
-      resultDiv.innerHTML = `
-        <div style="text-align:center; color:#000; margin-top:20px;">
-          <div style="font-size:24px; font-weight:bold;">...جاري التحميل <br> Loading...</div>
-        </div>`;
-
-      if (resetTimer) {
-        clearTimeout(resetTimer);
-      }
-
-      try {
-        const response = await fetch(
-          `https://${currentBranch}-loc.gazal.com.sa/webhook/data?str=${currentBranch}&q=${barcode}`
-        );
-        if (!response.ok) throw new Error("Server error");
-
-        const data = await response.json();
-        var {
-          image,
-          name_ar,
-          name_en,
-          price,
-          offer_price,
-          qty_to_buy,
-          direct_discount,
-        } = data;
-
-
-
-        if (qty_to_buy === 1) {
-          direct_discount = offer_price;
-          offer_price = null;
-        }
-        console.log(data);
-        if (!price) {
-          console.error("Fetch failed:", err);
-          resultDiv.innerHTML = `<div style="color:red;">فشل في تحميل بيانات المنتج.</div>`;
+          json = JSON.parse(atob(barcode));
+        } catch {
+          return false;
         }
 
-        const content = document.createElement("div");
-        if (!direct_discount) {
-          content.innerHTML = `
+        if (json.branch) {
+          localStorage.branchCode = json.branch;
+          showTempMessage(`تم تغيير الفرع إلى 
+      ${json.branch} `);
+          setTimeout(() => location.reload(), 2000);
+          return true;
+        }
+
+        if (json.ssid && json.password) {
+          const pers = showTempMessage("جار تغيير اعدادات الشبكه", 0);
+          try {
+            const resp = await fetch("/wifi_set.php", {
+              method: "POST",
+              headers: { "Content-Type": "application/x-www-form-urlencoded" },
+              body: `ssid=${encodeURIComponent(
+                json.ssid
+              )}&password=${encodeURIComponent(json.password)}`,
+            });
+            const data = await resp.json();
+            pers.remove();
+            showTempMessage(
+              data.success
+                ? `✅ تم الاتصال بالشبكة بنجاح 
+        ${json.ssid}`
+                : `❌ ${data.error}`
+            );
+            if (data.success) setTimeout(() => fetch("/reboot.php"), 2000);
+          } catch {
+            pers.remove();
+            showTempMessage("❌ فشل في الاتصال");
+          }
+          return true;
+        }
+        return false;
+      }
+
+      async function fetchBarcode(barcode) {
+        if (await check_device_settings(barcode)) return;
+
+        if (!navigator.onLine) {
+          showTempMessage("لا يوجد اتصال بالانترنت");
+          return;
+        }
+
+        if (!window.branchCode) {
+          showTempMessage("يرجى اختيار فرع");
+          return;
+        }
+
+        resultDiv.innerHTML = `
+    <div style="text-align:center; color:#000; margin-top:20px;">
+      <div style="font-size:24px; font-weight:bold;">...جاري التحميل <br> Loading...</div>
+    </div>`;
+
+        if (resetTimer) {
+          clearTimeout(resetTimer);
+        }
+
+        try {
+          const response = await fetch(
+            `https://${window.branchCode}-loc.gazal.com.sa/webhook/data?str=${window.branchCode}&q=${barcode}`
+          );
+          if (!response.ok) throw new Error("Server error");
+
+          const data = await response.json();
+          var {
+            name_ar,
+            name_en,
+            price,
+            offer_price,
+            qty_to_buy,
+            direct_discount,
+          } = data;
+          const image = `https://img.gazal.com.sa/${barcode}/${barcode}-00.jpg`;
+          if (qty_to_buy === 1) {
+            direct_discount = offer_price;
+            offer_price = null;
+          }
+          console.log(data);
+          if (!data.price) {
+            console.error("Fetch failed:", err);
+            resultDiv.innerHTML = `<div style="color:red; font-size: 2vw;">فشل في تحميل بيانات المنتج.</div>`;
+          }
+
+          const content = document.createElement("div");
+          if (!direct_discount) {
+            content.innerHTML = `
                 <div class= "imgcont"><img id="product-img" src="${image}" alt="Product Image"
                     style="max-width: 90%; max-height: 280px; object-fit: contain; margin-bottom: 1rem;" /></div>
                 <div class= "name"><div class="product-name-ar">${name_ar}</div>
                 <div class="product-name-en">${name_en}</div></div>
-                <div class="prices"><div class="price-container"><div class="product-price">${price
-                }</div><div class="currency">
-            <img src="assets/sar.png" alt="sar" style="width: 25px; height: 25px;" />
+                <div class="prices"><div class="price-container"><div class="product-price">${formatPriceForDisplay(price)}</div><div class="currency">
+            ^
           </div></div>`;
-        }
+          }
 
-        if (direct_discount) {
-          content.innerHTML = `
-            <div class= "imgcont">
-              <img id="product-img" src="${image}" alt="Product Image"
-                style="max-width: 90%; max-height: 280px; object-fit: contain; margin-bottom: 1rem;" />
-            </div>
-            <div class= "name"><div class="product-name-ar">${name_ar}</div>
-              <div class="product-name-en">${name_en}</div>
-            </div>
-            <div class="prices">
-              <div class="discount">${price}</div>
-              <div class="price-container">
-                <div class="product-price">${direct_discount}</div>
-                <div class="currency">
-                  <img src="assets/sar.png" alt="sar" style="width: 30px; height: 30px;" />
-                </div>
-              </div>
-            </div>`;
-        }
+          if (direct_discount) {
+            content.innerHTML = `
+    <div class="imgcont">
+      <img id="product-img" src="${image}" style="max-width:90%;max-height:280px;object-fit:contain;margin-bottom:1rem"/>
+    </div>
+    <div class="name">
+      <div class="product-name-ar">${name_ar}</div>
+      <div class="product-name-en">${name_en}</div>
+    </div>
+    <div class="prices">
+      <div class="price-container">
+        <div class="discount">${formatPriceForDisplay(price)}</div>
+      </div>
+    </div>
+    <div class="bundle-container">
+      <div class="discount-text"><span style="font-family: sar">^</span>${formatPriceForDisplay(direct_discount)}</div>
+      <div class="special-offer">عرض خاص</div>
+    </div>`;
+          }
 
-        if (qty_to_buy && offer_price) {
-          content.innerHTML += `
+          if (qty_to_buy && offer_price) {
+            content.innerHTML += `
             <div class="bundle-container">
               <div class="offer-text">
-                <span style="margin-left: 5vh;">اشتري ${qty_to_buy} حبه بسعر </span>
+                <span style="margin-left: 5vh;"> اشتري ${qty_to_buy} حبه بسعر </span> 
                 <span style="
                     background-color: black;
                     border-radius: 20px;
-                    font-size: 1.9rem;
+                    font-size: 2rem;
                     padding-top: 0.3vh;
                     padding-bottom: 0.3vh;
-                    padding-left: 1.2vh;
-                    padding-right: 1.2vh;
-                    margin-right: 2vh;"
-                  >${offer_price}</span>
+                    padding-left: 1.1vh;
+                    padding-right: 2.1vh;
+                    font-family: sar;"
+                    > ${formatPriceForDisplay(offer_price)} ^<span style="color:black">ا</span></span>
+
+                  
               </div>
               <div class="special-offer">عرض خاص</div>
             </div>`;
-        }
+          }
 
-        const img = content.querySelector("#product-img");
+          const img = content.querySelector("#product-img");
 
-        if (img) {
-          img.onload = () => {
+          if (img) {
+            img.onload = () => {
+              resultDiv.innerHTML = "";
+              resultDiv.appendChild(content);
+              resetTimer = setTimeout(() => {
+                resultDiv.innerHTML = `<div></div>`;
+              }, 15000);
+            };
+            img.onerror = () => {
+              img.parentElement.remove();
+              resultDiv.innerHTML = "";
+              resultDiv.appendChild(content);
+              resetTimer = setTimeout(() => {
+                resultDiv.innerHTML = `<div></div>`;
+              }, 15000);
+            };
+          } else {
             resultDiv.innerHTML = "";
             resultDiv.appendChild(content);
             resetTimer = setTimeout(() => {
               resultDiv.innerHTML = `<div></div>`;
             }, 15000);
-          };
-          img.onerror = () => {
-            img.parentElement.remove();
-            resultDiv.innerHTML = "";
-            resultDiv.appendChild(content);
-            resetTimer = setTimeout(() => {
-              resultDiv.innerHTML = `<div></div>`;
-            }, 15000);
-          };
-        } else {
-          resultDiv.innerHTML = "";
-          resultDiv.appendChild(content);
+          }
+        } catch (err) {
+          console.error("Fetch failed:", err);
+          resultDiv.innerHTML = `
+          <div style="color:red; font-size: 2rem;">.لم يتم العثور على المنتج <br> Could not find the product.</div>
+          `;
           resetTimer = setTimeout(() => {
             resultDiv.innerHTML = `<div></div>`;
-          }, 15000);
+          }, 3000);
         }
-
-
-      } catch (err) {
-        console.error("Fetch failed:", err);
-        resultDiv.innerHTML = `
-          <div style="color:red;">.فشل في تحميل بيانات المنتج</div>
-          <div style="color:red;">Failed to Load Product Information</div>`;
-        resetTimer = setTimeout(() => {
-          resultDiv.innerHTML = `<div></div>`;
-        }, 10000);
       }
-    }
 
-    focusInput();
-  </script>
-</body>
-
+      window.onload = focusInput;
+    </script>
+  </body>
 </html>
